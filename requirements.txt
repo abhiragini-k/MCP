@@ -1,0 +1,5 @@
+fastmcp
+web3
+python-dotenv
+pytest
+requests
