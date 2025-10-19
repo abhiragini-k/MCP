@@ -3,16 +3,18 @@ from wallet import web3, get_wallet_address
 from config import WALLET_PRIVATE_KEY
 
 
-#to do 
+#to do => done
 PENDLE_CONTRACT_ADDRESS = "0x888888888889758F76e7103c6CbF23ABbF58F946"
-
+                
 #To load contract ABI from the saved JSON file
 with open('abi/pendle_router_abi.json','r') as abi_files:
     PENDLE_CONTRACT_ABI = json.load(abi_files)
 
+pendle_contract = web3.eth.contract(address=PENDLE_CONTRACT_ADDRESS, abi = PENDLE_CONTRACT_ABI)
+
 # Function: Query yield tokens (update the function name after ABI inspection)
 def get_yield_tokens():
-    contract = web3.eth.contract(address=PENDLE_CONTRACT_ADDRESS, abi=PENDLE_CONTRACT_ABI)
+    """Fetch yield tokens or user-related token info"""
     address = get_wallet_address()
     # Example: Suppose ABI exposes 'balanceOf' for yield tokens
     # Replace 'balanceOf' and 'yieldTokenAddress' after examining the actual ABI!
@@ -23,7 +25,6 @@ def get_yield_tokens():
 
 # Function: Tokenize an asset (function name and args must match ABI!)
 def tokenize_asset(assey_id):
-    contract = web3.eth.contract(address=PENDLE_CONTRACT_ADDRESS, abi=PENDLE_CONTRACT_ABI)
     acct = web3.eth.account.from_key(WALLET_PRIVATE_KEY)
     #Build , sign, and send transaction
     #Example code:
