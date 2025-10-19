@@ -3,3 +3,5 @@ web3
 python-dotenv
 pytest
 requests
+httpx
+asyncio
