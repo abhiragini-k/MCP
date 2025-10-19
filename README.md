@@ -140,6 +140,237 @@ The agent is configured for Arbitrum Sepolia testnet. Pendle Finance contracts a
 - `create_token_input()` - Create token input structures
 - `create_token_output()` - Create token output structures
 
+## How It Works
+
+### Architecture Overview
+
+The Pendle Finance MCP Agent operates as a Model Context Protocol (MCP) server that provides programmatic access to Pendle Finance's DeFi operations. Here's how the system works:
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   MCP Client    │───▶│   MCP Server     │───▶│  Pendle Router  │
+│  (Your App)     │    │  (This Agent)    │    │   Contract      │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                       ┌──────────────────┐
+                       │   Web3 Provider  │
+                       │ (Arbitrum Sepolia)│
+                       └──────────────────┘
+```
+
+### Core Components
+
+1. **MCP Server (`main.py`)**: Entry point that starts the FastMCP server
+2. **Tool Wrappers (`tools.py`)**: Exposes Pendle functions as MCP tools
+3. **Core Logic (`pendle.py`)**: Direct contract interaction with Pendle Router
+4. **Wallet Integration (`wallet.py`)**: Handles Web3 connection and wallet operations
+5. **Configuration (`config.py`)**: Network settings and environment variables
+
+### Data Flow
+
+1. **Client Request**: MCP client calls a tool (e.g., `add_liquidity_with_sy_and_pt`)
+2. **Tool Processing**: `tools.py` validates parameters and calls `pendle.py` functions
+3. **Contract Interaction**: `pendle.py` builds and sends transactions to Pendle Router
+4. **Blockchain Execution**: Transaction is executed on Arbitrum Sepolia
+5. **Response**: Transaction hash and results are returned to the client
+
+### Key Features
+
+- **Direct Contract Interaction**: Uses actual Pendle Router ABI for on-chain operations
+- **Comprehensive Error Handling**: Custom exceptions for different failure scenarios
+- **Gas Optimization**: Built-in gas estimation and transaction optimization
+- **Multi-DEX Support**: Integration with Uniswap, Curve, Balancer, and other DEXs
+- **Flexible Parameters**: Support for complex approximation parameters and swap data
+
+## Execution Guide
+
+### Prerequisites
+
+1. **Python 3.8+** installed
+2. **Arbitrum Sepolia ETH** for gas fees (get from [Arbitrum Sepolia Faucet](https://faucet.quicknode.com/arbitrum/sepolia))
+3. **Private Key** for wallet operations
+
+### Step 1: Installation
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd pendle-finance-mcp
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Step 2: Configuration
+
+Create a `.env` file in the project root:
+
+```bash
+# .env file
+RPC_URL=https://sepolia-rollup.arbitrum.io/rpc
+WALLET_PRIVATE_KEY=your_private_key_here
+PENDLE_CONTRACT_ADDRESS=TBD
+```
+
+**Important Notes:**
+- Replace `your_private_key_here` with your actual private key (without 0x prefix)
+- The project is configured for Arbitrum Sepolia testnet
+- Pendle contracts may not be deployed on Arbitrum Sepolia yet
+
+### Step 3: Running the MCP Server
+
+```bash
+# Start the MCP server
+python main.py
+```
+
+The server will start and listen for MCP client connections. You should see output like:
+```
+Pendle Finance MCP Agent started
+Listening for MCP connections...
+```
+
+### Step 4: Using the Agent
+
+#### Option A: Direct Function Calls (for testing)
+
+```python
+# Example: Check wallet info
+from tools import get_wallet_info
+result = get_wallet_info()
+print(result)
+```
+
+#### Option B: MCP Client Integration
+
+```python
+# Example MCP client usage
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+
+async def main():
+    async with ClientSession(StdioServerParameters(
+        command="python",
+        args=["main.py"]
+    )) as session:
+        # Call a tool
+        result = await session.call_tool(
+            "add_liquidity_with_sy_and_pt",
+            {
+                "receiver": "0x...",
+                "market": "0x...",
+                "net_sy_desired": 1000000000000000000,  # 1 SY token
+                "net_pt_desired": 1000000000000000000,  # 1 PT token
+                "min_lp_out": 0
+            }
+        )
+        print(result)
+
+asyncio.run(main())
+```
+
+### Step 5: Available Operations
+
+#### Liquidity Management
+```bash
+# Add liquidity with SY and PT tokens
+add_liquidity_with_sy_and_pt(receiver, market, net_sy_desired, net_pt_desired, min_lp_out)
+
+# Add liquidity with SY only
+add_liquidity_with_sy_only(receiver, market, net_sy_in, min_lp_out)
+
+# Remove liquidity
+remove_liquidity_to_sy_and_pt(receiver, market, net_lp_to_remove, min_sy_out, min_pt_out)
+```
+
+#### PY Token Operations
+```bash
+# Mint PY tokens from SY
+mint_py_tokens(receiver, yt_address, net_sy_in)
+
+# Redeem PY tokens to SY
+redeem_py_tokens(receiver, yt_address, net_py_in)
+```
+
+#### Utility Functions
+```bash
+# Check wallet info
+get_wallet_info()
+
+# Get contract information
+get_contract_info()
+
+# Create approximation parameters
+create_approximation_params(guess_min, guess_max, max_iteration)
+```
+
+### Step 6: Testing
+
+Run the test suite to verify everything works:
+
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run specific test file
+python -m pytest tests/test_tools.py
+
+# Run with verbose output
+python -m pytest tests/ -v
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **"Pendle contracts not deployed"**
+   - This is expected on Arbitrum Sepolia
+   - The agent gracefully handles missing contracts
+   - Try Ethereum Mainnet for full functionality
+
+2. **"Insufficient funds"**
+   - Ensure you have Arbitrum Sepolia ETH for gas
+   - Get testnet ETH from the faucet
+
+3. **"Invalid private key"**
+   - Check your `.env` file format
+   - Ensure private key doesn't include 0x prefix
+
+4. **"Connection refused"**
+   - Verify RPC URL is correct
+   - Check internet connection
+
+#### Debug Mode
+
+Enable debug logging by setting environment variable:
+```bash
+export PYTHONPATH=.
+python -c "import logging; logging.basicConfig(level=logging.DEBUG); import main"
+```
+
+### Network Information
+
+**Arbitrum Sepolia Testnet:**
+- Chain ID: 421614
+- RPC URL: https://sepolia-rollup.arbitrum.io/rpc
+- Block Explorer: https://sepolia.arbiscan.io/
+- Faucet: https://faucet.quicknode.com/arbitrum/sepolia
+
+**For Production Use:**
+- Switch to Ethereum Mainnet in `config.py`
+- Update contract addresses
+- Use mainnet RPC endpoints
+
 ## Dependencies
 
 - `web3` - Ethereum Web3 library
