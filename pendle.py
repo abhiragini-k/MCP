@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 from wallet import web3, get_wallet_address

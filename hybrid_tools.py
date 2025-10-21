@@ -1,7 +1,6 @@
 """
-Hybrid Pendle Finance MCP Tools
-Combines direct contract interaction with hosted SDK API approach
-Best of both worlds for hackathon-winning implementation
+Pendle Finance MCP Tools
+Yield trading, liquidity management, and tokenized yield operations
 """
 from fastmcp import FastMCP
 from typing import Dict, Any, List
@@ -19,7 +18,7 @@ from pendle import (
 from pendle_api_client import pendle_api
 
 # Set up the MCP server
-mcp = FastMCP("Pendle Finance Hybrid MCP Agent")
+mcp = FastMCP("Pendle Finance MCP Agent")
 
 # ========== ORIGINAL CONTRACT INTERACTION TOOLS ==========
 

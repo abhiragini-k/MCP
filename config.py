@@ -1,17 +1,13 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Arbitrum Sepolia Configuration
-# This project is configured for Arbitrum Sepolia testnet
+# Network configuration
 RPC_URL = os.getenv('RPC_URL', 'https://sepolia-rollup.arbitrum.io/rpc')
 WALLET_PRIVATE_KEY = os.getenv('WALLET_PRIVATE_KEY')
-
-# Network configuration for Arbitrum Sepolia
-CHAIN_ID = 421614
-PENDLE_CONTRACT_ADDRESS = os.getenv('PENDLE_CONTRACT_ADDRESS', 'TBD')  # Pendle not deployed on Arbitrum Sepolia yet
+PENDLE_CONTRACT_ADDRESS = os.getenv('PENDLE_CONTRACT_ADDRESS', 'TBD')
 
 # Network info
 NETWORK_INFO = {
