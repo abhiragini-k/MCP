@@ -21,7 +21,7 @@ def print_info(message: str):
     print(f"ℹ️  {message}")
 
 print_header("Pendle Finance MCP Agent - Test Suite")
-print("Testing all components and tool categories for hackathon submission")
+print("Testing all components and tool categories ")
 
 # Test 1: Wallet Integration
 print_header("1. Wallet Integration Test")
@@ -127,14 +127,14 @@ async def test_async_operations():
         print_info("Testing async market data operations...")
         
         # Test market batch (non-blocking)
-        result = await get_markets_batch([1, 42161], 3)
+        result = await get_markets_batch.fn([1, 42161], 3)
         if result.get("status") == "success":
             print_success("Async market batch operation working")
         else:
             print_error("Async market batch operation failed")
             
         # Test best opportunities (non-blocking)
-        result = await get_best_opportunities(1, 50000)
+        result = await get_best_opportunities.fn(1, 50000)
         if result.get("status") == "success":
             print_success("Async opportunities operation working")
         else:
